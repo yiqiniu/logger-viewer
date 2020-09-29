@@ -1,0 +1,33 @@
+{
+    "name": "yiqiniu/logger",
+    "description": "记录和管理日志",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "gjianbo",
+            "email": "gjianbo@qq.com"
+        }
+    ],
+    "require": {
+        "monolog/monolog": "2.1.1",
+        "guzzlehttp/guzzle": "6.5.*",
+        "topthink/think-template": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "yiqiniu\\logger\\": "src"
+        }
+    },
+    "extra": {
+        "think": {
+            "services": [
+                "yiqiniu\\logger\\BootService"
+            ]
+        }
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true
+    }
+}

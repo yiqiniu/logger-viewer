@@ -125,8 +125,8 @@ class Logger implements YqnLoggerInterface
         return $this->handler->read($fileID);
     }
 
-    public function delete(string $fileID,bool $isdir): bool
+    public function delete(string $fileID): bool
     {
-        return $this->handler->delete($fileID,$isdir);
+        return $this->handler->delete($fileID);
     }
 }

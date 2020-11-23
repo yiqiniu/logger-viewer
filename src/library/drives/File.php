@@ -76,7 +76,7 @@ class File implements YqnLoggerInterface
             if (is_dir($filename) && $level < 3) {
                 // 生成路径
                 $path = empty($parentpath) ? $file : $parentpath . '|' . $file;
-                $node = ['title' => $file, 'id' => $file, 'children' => [], 'path' => $path];
+                $node = ['title' => $file, 'id' => $file, 'children' => [], 'path' => $path, 'spread' => true];
                 $node_children =& $node['children'];
                 $result[] = $node;
                 $this->treelistAction($filename, $node_children, $level + 1, $path);
@@ -149,32 +149,24 @@ class File implements YqnLoggerInterface
     /**
      * 删除文件
      * @param string $fileID 多个文件以;分隔
-     * @param array $isdir true 文件夹， false 文件
      * @return bool
      */
-    public function delete(string $fileID, bool $isdir): bool
+    public function delete(string $fileID): bool
     {
-        //删除文件夹
         $dest_dir = $this->_option['log_dir'];
-        if ($isdir) {
-            if ($fileID !== '') {
-                $dest_dir .= DIRECTORY_SEPARATOR . str_replace('|', DIRECTORY_SEPARATOR, $fileID);
-            }
-            if (file_exists($dest_dir) && is_dir($dest_dir)) {
-                return $this->deldir($dest_dir);
-            }
-            return false;
-        } else {
-            //删除文件
-            $files = explode(';', $fileID);
-            foreach ($files as $file) {
-                $file = $dest_dir .= DIRECTORY_SEPARATOR . str_replace('|', DIRECTORY_SEPARATOR, $file);
-                if (file_exists($file)) {
+        //删除文件
+        $files = explode(';', $fileID);
+        foreach ($files as $file) {
+            $file = $dest_dir .= DIRECTORY_SEPARATOR . str_replace('|', DIRECTORY_SEPARATOR, $file);
+            if (file_exists($file)) {
+                if (is_dir($dest_dir)) {
+                    $this->deldir($dest_dir);
+                } else {
                     unlink($file);
                 }
             }
-            return true;
         }
+        return true;
     }
 
     /**
@@ -187,12 +179,12 @@ class File implements YqnLoggerInterface
         //先删除目录下的文件：
         $dh = opendir($dir);
         while ($file = readdir($dh)) {
-            if ($file != "." && $file != "..") {
+            if ($file !== '.' && $file !== '..') {
                 $fullpath = $dir . DIRECTORY_SEPARATOR . $file;
                 if (!is_dir($fullpath)) {
                     unlink($fullpath);
                 } else {
-                    deldir($fullpath);
+                    $this->deldir($fullpath);
                 }
             }
         }
@@ -201,9 +193,8 @@ class File implements YqnLoggerInterface
         //删除当前文件夹：
         if (rmdir($dir)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
 }

@@ -50,6 +50,6 @@ interface YqnLoggerInterface
      * @param string $fileID
      * @return bool
      */
-    public function delete(string $fileID,bool $isdir): bool;
+    public function delete(string $fileID): bool;
 
 }

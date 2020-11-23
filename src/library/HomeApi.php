@@ -74,8 +74,9 @@ class HomeApi
      */
     public function filelist()
     {
-        $path = input('get.path');
+        $path = input('get.path', '');
         $list = Logger::getInstance($this->app)->filelist($path);
+
         return $this->result($list, count($list));
     }
 
@@ -85,8 +86,8 @@ class HomeApi
     public function filecontent()
     {
         $path = input('get.path');
-        $list = Logger::getInstance($this->app)->read($path);
-        return $this->result($list);
+        $content = Logger::getInstance($this->app)->read($path);
+        return '<div style="padding: 5px; font-size: 16px; line-height: 25px;white-space:nowrap;">'.str_replace(["\r\n","\r","\n"],'<br/>',$content).'</div>';
     }
 
     /**
@@ -95,8 +96,7 @@ class HomeApi
     public function delete()
     {
         $path = input('post.path');
-        $flag = input('post.dir', 0);
-        $result = Logger::getInstance($this->app)->delete($path, $flag > 0);
+        $result = Logger::getInstance($this->app)->delete($path);
         return $this->result([], 0, '删除完成');
     }
 

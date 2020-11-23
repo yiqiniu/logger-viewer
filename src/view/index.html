@@ -6,12 +6,12 @@
     <title>日志查看器</title>
     <link href="__RES__/layui/css/layui.css" rel="stylesheet">
     <style type="text/css">
-        #test1 .layui-tree-entry ,
-        #test1 .layui-tree-txt,
-        #test1 .layui-icon-addition,
-        #test1 .layui-icon-subtraction,
-        #test1 .layui-icon-delete
-        #test1 .layui-icon-file {
+        #treelist .layui-tree-entry,
+        #treelist .layui-tree-txt,
+        #treelist .layui-icon-addition,
+        #treelist .layui-icon-subtraction,
+        #treelist .layui-icon-delete,
+        #treelist .layui-icon-file {
             color: #fff;
         }
 
@@ -36,14 +36,27 @@
         </div>
     </div>
 
-    <script type="text/html" id="barDemo">
-        <a class="layui-btn layui-btn-xs" lay-event="edit">查看日志</a>
+    <script type="text/html" id="toolbarDemo">
+        <div class="layui-btn-container pull-right">
+            <button class="layui-btn layui-btn-sm" lay-event="delAll">删除选中记录</button>
+        </div>
+    </script>
+    <script id="barDemo" type="text/html">
+        <a class="layui-btn layui-btn-xs" lay-event="view">查看日志</a>
+        <a class="layui-btn layui-btn-xs" lay-event="del">删除</a>
     </script>
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <table class="layui-hide" id="file_list_id"></table>
+        <table class="layui-hide" id="file_list_id" lay-filter="filetable"></table>
     </div>
 
+    <script type="text/html" id="sexDir">
+        {{#  if(d.is_dir == 1){ }}
+        <span style="color: #5a5708;">文件夹</span>
+        {{#  } else { }}
+        文件
+        {{#  } }}
+    </script>
     <div class="layui-footer">
         <!-- 底部固定区域 -->
         © layui.com - 底部固定区域
@@ -54,157 +67,144 @@
 
 
     //JavaScript代码区域
-    layui.use(['tree', 'util','table'], function () {
+    layui.use(['tree', 'util', 'table'], function () {
         var tree = layui.tree,
             layer = layui.layer,
             util = layui.util,
             table = layui.table,
             $ = layui.$;
 
-            var request={
-                urls:{
-                  tree:'{}'
-                },
-                //目录数据
-                treedata:function (){
-                    $.get()
-
-                },
-                // 文件列表
-                filelist:function (){
-
-                },
-                //文件内容
-                content:function (){
-
-                },
-                //删除文件
-                delete:function (){
-
-                }
-            };
-
-            // 获取
-            getfilelist = function(type,data){
-                $.get("{:url('list')}",'')
-            };
-
-            //模拟数据1
-            data1 = [{
-                title: '江西'
-                , id: 1
-                , children: [{
-                    title: '南昌'
-                    , id: 1000
-                    , children: [{
-                        title: '青山湖区'
-                        , id: 10001
-                    }, {
-                        title: '高新区'
-                        , id: 10002
-                    }]
-                }, {
-                    title: '九江'
-                    , id: 1001
-                }, {
-                    title: '赣州'
-                    , id: 1002
-                }]
-            }, {
-                title: '广西'
-                , id: 2
-                , children: [{
-                    title: '南宁'
-                    , id: 2000
-                }, {
-                    title: '桂林'
-                    , id: 2001
-                }]
-            }, {
-                title: '陕西'
-                , id: 3
-                , children: [{
-                    title: '西安'
-                    , id: 3000
-                }, {
-                    title: '延安'
-                    , id: 3001
-                }]
-            }];
-
+        var request = {
+            //目录数据
+            treedata: function () {
+                $.get("{:url('viewer/tree')}", function (json) {
+                    tree.reload('lefttree_id', {data: json.data});
+                }, 'json');
+            },
+            // 文件列表
+            filelist: function (dirpath) {
+                //执行重载
+                table.reload('file_table_id', {
+                    where: {
+                        path: dirpath
+                    }
+                }, 'data');
+            },
+            //文件内容
+            content: function ($path) {
+                $.get("{:url('viewer/read')}", {path: $path}, function (content) {
+                    //页面层
+                    var index = layer.open({
+                        type: 1,
+                        title:'日志内容',
+                        skin: 'layui-layer-rim', //加上边框
+                        area: ['1280px', '800px'], //宽高
+                        maxmin: true,
+                        content: content
+                    });
+                }, 'html');
+            },
+            //删除文件
+            delete: function ($path) {
+                console.info($path);
+                $.post("{:url('viewer/del')}", {path: $path}, function (result) {
+                    layer.alert('删除成功', {icon: 6});
+                }, 'json');
+            }
+        };
 
         //常规用法
         tree.render({
             elem: '#treelist', //默认是点击节点可进行收缩
-            data: data1,
-            accordion:true,
+            data: [],
+            accordion: true,
             edit: ['del'],
-            id:'lefttree_id'
+            id: 'lefttree_id',
+            click: function(obj){
+                var data = obj.data; //得到当前节点的数据
+                if(data['path']!=''){
+                    request.filelist(data['path']);
+                }
+            },
+            operate: function(obj) {
+                var type = obj.type; //得到操作类型：add、edit、del
+                var data = obj.data; //得到当前节点的数据
+                var elem = obj.elem; //得到当前节点元素
+                if (type === 'del') { //增加节点
+                    if(data['path']!=''){
+                        request.delete(data['path'],1);
+                    }
+                }
+            }
         });
 
-
-
-
+        //文件列表
         table.render({
             elem: '#file_list_id'
-            ,url:"https://www.layui.com/demo/table/user/?page=1&limit=30"
-            ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
-            ,cols: [[
-                {type:'checkbox'},
-                {field:'id', width:80, title: 'ID', sort: true}
-                ,{field:'username', width:80, title: '用户名'}
-                ,{field:'sex', width:80, title: '性别', sort: true}
-                ,{field:'city', width:80, title: '城市'}
-                ,{field:'sign', title: '签名', width: '30%', minWidth: 100} //minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
-                ,{field:'experience', title: '积分', sort: true}
-                ,{field:'score', title: '评分', sort: true}
-                ,{field:'classify', title: '职业'}
-                ,{field:'wealth', width:137, title: '财富', sort: true}
-                ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:150}
+            , url: "{:url('viewer/list')}"
+            , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            ,defaultToolbar:[]
+            , cols: [[
+                {type: 'checkbox'},
+                {field: 'filename', width: '20%', title: '文件名'}
+                , {field: 'filesize',  title: '文件大小'}
+                , {field: 'last_time',  title: '最后访问时间'}
+                , {field: 'is_dir',  title: '是否目录',templet: '#sexDir'} //minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150}
             ]],
-            id: 'testReload'
+            page:false,
+            id: 'file_table_id'
         });//监听行工具事件
-        table.on('tool(test)', function(obj){
+        table.on('tool(filetable)', function (obj) {
             var data = obj.data;
-            if(obj.event === 'del'){
-                layer.confirm('真的删除行么', function(index){
+            if (obj.event === 'del') {
+                layer.confirm('真的删除行吗？', function (index) {
+                    request.delete(data['path'],0);
                     obj.del();
                     layer.close(index);
                 });
-            } else if(obj.event === 'edit'){
-                layer.prompt({
-                    formType: 2
-                    ,value: data.email
-                }, function(value, index){
-                    obj.update({
-                        email: value
-                    });
-                    layer.close(index);
-                });
+            } else if (obj.event === 'view') {
+                request.content(data['path']);
             }
         });
-        var $ = layui.$, active = {
-            reload: function(){
-                //var demoReload = $('#demoReload');
-
-                //执行重载
-                table.reload('testReload', {
-                    page: {
-                        curr: 1 //重新从第 1 页开始
+        //头工具栏事件
+        table.on('toolbar(filetable)', function(obj){
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch(obj.event){
+                case 'delAll':
+                    var data = checkStatus.data;
+                    if(data.lenght<1){
+                        layer.alert('未选中记录', {icon: 5});
+                        return false;
                     }
-                    ,where: {
-                        key: {
-                            id: demoReload.val()
+                    layer.confirm('真的删除行吗？', function (index) {
+                        var paths =[];
+                        for (var i=0;i<data.length;i++){
+                            paths.push(data[i]['path']);
                         }
-                    }
-                }, 'data');
-            }
-        };
-
-        $('.demoTable .layui-btn').on('click', function(){
-            var type = $(this).data('type');
-            active[type] ? active[type].call(this) : '';
+                        request.delete(paths.join(';'));
+                        table.reload('file_table_id');
+                        layer.close(index);
+                    });
+                    break;
+            };
         });
+
+        //监听行双击事件
+        table.on('rowDouble(filetable)', function(obj){
+            var data = obj.data;
+            if(data['is_dir']==0){
+                request.content(data['path']);
+            }else{
+                request.filelist(data['path']);
+            }
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+
+        });
+        //加载treedata
+        request.treedata();
     });
 
 </script>

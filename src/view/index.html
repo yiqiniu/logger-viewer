@@ -92,9 +92,10 @@
             },
             //文件内容
             content: function ($path) {
-                $.get("{:url('viewer/read')}", {path: $path}, function (content) {
+                var url ="{:url('viewer/read')}"+"?path="+$path;
+                //$.get("{:url('viewer/read')}", {path: $path}, function (content) {
                     //页面层
-                    var index = layer.open({
+                  /*  var index = layer.open({
                         type: 1,
                         title:'日志内容',
                         skin: 'layui-layer-rim', //加上边框
@@ -102,7 +103,14 @@
                         maxmin: true,
                         content: content
                     });
-                }, 'html');
+                }, 'html');*/
+                    layer.open({
+                        type: 2,
+                        title:'日志内容',
+                        area: ['1280px', '800px'], //宽高
+                        maxmin: true,
+                        content: url, //iframe的url，no代表不显示滚动条
+                    });
             },
             //删除文件
             delete: function ($path) {

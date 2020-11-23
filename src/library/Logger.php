@@ -7,12 +7,9 @@ namespace yiqiniu\logger\library;
 use think\App;
 use think\Exception;
 use yiqiniu\logger\library\contract\YqnLoggerInterface;
-use yiqiniu\traits\Singleton;
 
 class Logger implements YqnLoggerInterface
 {
-    use  Singleton;
-
     private static $_config = [];
 
 
@@ -31,13 +28,30 @@ class Logger implements YqnLoggerInterface
      */
     protected $handler = null;
 
-    /**
-     * Logger constructor.
-     */
-    public function __construct()
-    {
 
+    protected static $_instance = null;
+
+    /**
+     * Procdata constructor.
+     * @param mixed ...$args
+     */
+    private function __construct()
+    {
     }
+
+
+    public static function getInstance(...$args)
+    {
+        // 获取调用者，产生一个单列调用值
+        if (empty(self::$_instance)) {
+            self::$_instance = new static();
+        }
+        if (method_exists(self::$_instance, '_initilize')) {
+            call_user_func_array([self::$_instance,'_initilize'],$args);
+        }
+        return self::$_instance;
+    }
+
 
     public function _initilize(App $app){
         $this->app = $app;

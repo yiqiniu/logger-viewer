@@ -10,8 +10,6 @@
         }
     ],
     "require": {
-        "monolog/monolog": "2.1.1",
-        "guzzlehttp/guzzle": "6.5.*",
         "topthink/think-template": "^2.0"
     },
     "autoload": {

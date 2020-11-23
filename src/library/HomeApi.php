@@ -55,9 +55,18 @@ class HomeApi
         // 设置模板引擎参数
         $template = new Template($this->tpl_config);
         // 模板变量赋值
-        $template->assign(['name' => 'think']);
+        //$template->assign(['root' => $root_list]);
         // 读取模板文件渲染输出
         $template->fetch('index');
+    }
+
+    /**
+     * 读取目录列表
+     */
+    public function treelist()
+    {
+        $list = Logger::getInstance($this->app)->treelist();
+        return $this->result($list, count($list));
     }
 
     /**
@@ -65,7 +74,9 @@ class HomeApi
      */
     public function filelist()
     {
-        echo '文件列表';
+        $path = input('get.path');
+        $list = Logger::getInstance($this->app)->filelist($path);
+        return $this->result($list, count($list));
     }
 
     /**
@@ -73,7 +84,9 @@ class HomeApi
      */
     public function filecontent()
     {
-        echo '文件内容';
+        $path = input('get.path');
+        $list = Logger::getInstance($this->app)->read($path);
+        return $this->result($list);
     }
 
     /**
@@ -81,17 +94,28 @@ class HomeApi
      */
     public function delete()
     {
-        echo '删除';
+        $path = input('post.path');
+        $flag = input('post.dir', 0);
+        $result = Logger::getInstance($this->app)->delete($path, $flag > 0);
+        return $this->result([], 0, '删除完成');
     }
 
 
     /**
-     * 获取配置文件
-     * @return array
+     * 返回结果
+     * @param $data
+     * @param int $count
+     * @param string $msg
+     * @return \think\response\Json
      */
-    protected function getconfig()
+    public function result($data, $count = 0, $msg = '')
     {
 
+        return json(["code" => 0,
+            "msg" => $msg,
+            "count" => $count,
+            "data" => $data
+        ]);
     }
 
 

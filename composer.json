@@ -1,5 +1,5 @@
 {
-    "name": "yiqiniu/logger",
+    "name": "yiqiniu/logger-viewer",
     "description": "记录和管理日志",
     "type": "library",
     "license": "MIT",

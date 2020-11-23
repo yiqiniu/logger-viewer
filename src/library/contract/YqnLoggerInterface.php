@@ -4,8 +4,18 @@
 namespace yiqiniu\logger\library\contract;
 
 
+
 interface YqnLoggerInterface
 {
+
+
+    /**
+     * 初始化配置
+     * @param array $option
+     * @return mixed
+     */
+    public function initOption(array $option): bool;
+
     /**
      * 写日志
      * @param string $content
@@ -15,11 +25,18 @@ interface YqnLoggerInterface
 
 
     /**
+     * 获取根列表
+     * @param string $fileID
+     * @return array
+     */
+    public function treelist(): array;
+
+    /**
      * 获取日志列表
      * @param string $fileID
      * @return array
      */
-    public function list(string $fileID = ''): array;
+    public function filelist(string $fileID = ''): array;
 
     /**
      * 获取文件内容
@@ -33,6 +50,6 @@ interface YqnLoggerInterface
      * @param string $fileID
      * @return bool
      */
-    public function delete(string $fileID): bool;
+    public function delete(string $fileID,bool $isdir): bool;
 
 }

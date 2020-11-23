@@ -21,20 +21,23 @@ class BootService extends Service
         Base::checkConfigFileExist($this->app);
 
         // 查看日志的路由
-        $route->group('viewlog', function () use ($route) {
+        $route->group('viewer', function () use ($route) {
             $route->get('/', function () {
                 return HomeApi::getInstance($this->app)->index();
             });
             $route->get('index', function () {
                 return HomeApi::getInstance($this->app)->index();
             });
+            $route->get('tree', function () {
+                return HomeApi::getInstance($this->app)->treelist();
+            });
             $route->get('list', function () {
                 return HomeApi::getInstance($this->app)->filelist();
             });
-            $route->get('content', function () {
+            $route->get('read', function () {
                 return HomeApi::getInstance($this->app)->filecontent();
             });
-            $route->get('del', function () {
+            $route->post('del', function () {
                 return HomeApi::getInstance($this->app)->delete();
             });
         })->mergeRuleRegex();

@@ -23,8 +23,12 @@ class Base
     {
         $dest_file = $app->getConfigPath() . self::YIQINIU_LOG_CONFIG . '.php';
         if (!file_exists($dest_file)) {
-            $src_file = __DIR__ . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . self::YIQINIU_LOG_CONFIG . '.php';
-            copy($src_file, $dest_file);
+
+            $src_file = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . self::YIQINIU_LOG_CONFIG . '.php';
+            if(file_exists($src_file)){
+                copy($src_file, $dest_file);
+            }
+
         }
     }
 
@@ -39,9 +43,9 @@ class Base
     {
 
         if ($bView) {
-            $config = $app->config(self::YIQINIU_LOG_CONFIG_VIEW);
+            $config = $app->config->get(self::YIQINIU_LOG_CONFIG_VIEW);
         } else {
-            $config = $app->config(self::YIQINIU_LOG_CONFIG_LOG);
+            $config = $app->config->get(self::YIQINIU_LOG_CONFIG_LOG);
         }
 
         /*$config = [];

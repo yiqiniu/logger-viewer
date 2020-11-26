@@ -9,7 +9,7 @@ return [
         // 文件方式
         'file' => [
             //查看日志根目录
-            'base_dir' => '',
+            'base_dir' => function_exists('runtime_path') ? runtime_path() : '',
             //子目录列表
             'log_dir' => [],
             //显示文件的扩展名

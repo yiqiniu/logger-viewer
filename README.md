@@ -1,6 +1,6 @@
 # 日志查看器
 ## 使用方法
- composer require yiqiniu/logger-viewer=dev.master
+ composer require yiqiniu/logger-viewer=dev-master
  
  
 ## 访问方法

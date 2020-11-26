@@ -25,6 +25,15 @@ class BootService extends Service
             $route->get('/', function () {
                 return HomeApi::getInstance($this->app)->index();
             });
+            $route->get('login', function () {
+                return HomeApi::getInstance($this->app)->login();
+            });
+            $route->get('logout', function () {
+                return HomeApi::getInstance($this->app)->logout();
+            });
+            $route->post('auth', function () {
+                return HomeApi::getInstance($this->app)->auth();
+            });
             $route->get('index', function () {
                 return HomeApi::getInstance($this->app)->index();
             });

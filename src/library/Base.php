@@ -15,6 +15,8 @@ class Base
     const  YIQINIU_LOG_CONFIG_VIEW = 'yqn_logger.view';
     // 日志配置
     const  YIQINIU_LOG_CONFIG_LOG = 'yqn_logger.log';
+    // 认证
+    const  YIQINIU_LOG_CONFIG_AUTH = 'yqn_logger.auth';
 
     /**
      * 检测配置文件是否存在,不存在复制系统配置目录中
@@ -25,7 +27,7 @@ class Base
         if (!file_exists($dest_file)) {
 
             $src_file = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . self::YIQINIU_LOG_CONFIG . '.php';
-            if(file_exists($src_file)){
+            if (file_exists($src_file)) {
                 copy($src_file, $dest_file);
             }
 
@@ -35,17 +37,20 @@ class Base
 
     /**
      * 获取配置文件
-     * @param App  $app
+     * @param App $app
      * @param bool $bView
      * @return array|mixed
      */
-    public static function getConfig(App $app, bool $bView = true)
+    public static function getConfig(App $app, bool $bView = true, $name = '')
     {
 
         if ($bView) {
             $config = $app->config->get(self::YIQINIU_LOG_CONFIG_VIEW);
-        } else {
+        }
+        if ($name === '') {
             $config = $app->config->get(self::YIQINIU_LOG_CONFIG_LOG);
+        } else {
+            $config = $app->config->get(self::YIQINIU_LOG_CONFIG . '.' . $name);
         }
 
         /*$config = [];

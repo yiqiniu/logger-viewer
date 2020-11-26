@@ -15,17 +15,27 @@
             color: #fff;
         }
 
+        .layui-layout-admin .layui-logo {
+            font-size: 30px;
+        }
+
+        .layui-logo .layui-icon {
+            font-size: 36px;
+        }
+
+        .layui-table, .layui-table-view {
+            margin-top: 0px;
+        }
     </style>
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
     <div class="layui-header">
-        <div class="layui-logo">日志查看器</div>
-        <!-- 头部区域（可配合layui已有的水平导航） -->
-
+        <div class="layui-logo">
+            <i class="layui-icon layui-icon-read"></i>日志查看器
+        </div>
         <ul class="layui-nav layui-layout-right">
-
-            <li class="layui-nav-item"><a href="">退了</a></li>
+            <li class="layui-nav-item"><a href="{:url('/viewer/logout')}">退了</a></li>
         </ul>
     </div>
 
@@ -36,7 +46,7 @@
         </div>
     </div>
 
-    <script type="text/html" id="toolbarDemo">
+    <script id="toolbarDemo" type="text/html">
         <div class="layui-btn-container pull-right">
             <button class="layui-btn layui-btn-sm" lay-event="delAll">删除选中记录</button>
         </div>
@@ -50,7 +60,7 @@
         <table class="layui-hide" id="file_list_id" lay-filter="filetable"></table>
     </div>
 
-    <script type="text/html" id="sexDir">
+    <script id="sexDir" type="text/html">
         {{#  if(d.is_dir == 1){ }}
         <span style="color: #5a5708;">文件夹</span>
         {{#  } else { }}
@@ -92,25 +102,25 @@
             },
             //文件内容
             content: function ($path) {
-                var url ="{:url('viewer/read')}"+"?path="+$path;
+                var url = "{:url('viewer/read')}" + "?path=" + $path;
                 //$.get("{:url('viewer/read')}", {path: $path}, function (content) {
-                    //页面层
-                  /*  var index = layer.open({
-                        type: 1,
-                        title:'日志内容',
-                        skin: 'layui-layer-rim', //加上边框
-                        area: ['1280px', '800px'], //宽高
-                        maxmin: true,
-                        content: content
-                    });
-                }, 'html');*/
-                    layer.open({
-                        type: 2,
-                        title:'日志内容',
-                        area: ['1280px', '800px'], //宽高
-                        maxmin: true,
-                        content: url, //iframe的url，no代表不显示滚动条
-                    });
+                //页面层
+                /*  var index = layer.open({
+                      type: 1,
+                      title:'日志内容',
+                      skin: 'layui-layer-rim', //加上边框
+                      area: ['1280px', '800px'], //宽高
+                      maxmin: true,
+                      content: content
+                  });
+              }, 'html');*/
+                layer.open({
+                    type: 2,
+                    title: '日志内容',
+                    area: ['1280px', '800px'], //宽高
+                    maxmin: true,
+                    content: url, //iframe的url，no代表不显示滚动条
+                });
             },
             //删除文件
             delete: function ($path) {
@@ -127,20 +137,21 @@
             data: [],
             accordion: true,
             edit: ['del'],
+            onlyIconControl: true,  //是否仅允许节点左侧图标控制展开收缩
             id: 'lefttree_id',
-            click: function(obj){
+            click: function (obj) {
                 var data = obj.data; //得到当前节点的数据
-                if(data['path']!=''){
+                if (data['path'] != '') {
                     request.filelist(data['path']);
                 }
             },
-            operate: function(obj) {
+            operate: function (obj) {
                 var type = obj.type; //得到操作类型：add、edit、del
                 var data = obj.data; //得到当前节点的数据
                 var elem = obj.elem; //得到当前节点元素
                 if (type === 'del') { //增加节点
-                    if(data['path']!=''){
-                        request.delete(data['path'],1);
+                    if (data['path'] != '') {
+                        request.delete(data['path'], 1);
                     }
                 }
             }
@@ -151,24 +162,24 @@
             elem: '#file_list_id'
             , url: "{:url('viewer/list')}"
             , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
-            ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
-            ,defaultToolbar:[]
+            , toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            , defaultToolbar: []
             , cols: [[
                 {type: 'checkbox'},
                 {field: 'filename', width: '20%', title: '文件名'}
-                , {field: 'filesize',  title: '文件大小'}
-                , {field: 'last_time',  title: '最后访问时间'}
-                , {field: 'is_dir',  title: '是否目录',templet: '#sexDir'} //minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
+                , {field: 'filesize', title: '文件大小'}
+                , {field: 'last_time', title: '最后访问时间'}
+                , {field: 'is_dir', title: '是否目录', templet: '#sexDir'} //minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
                 , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150}
             ]],
-            page:false,
+            page: false,
             id: 'file_table_id'
         });//监听行工具事件
         table.on('tool(filetable)', function (obj) {
             var data = obj.data;
             if (obj.event === 'del') {
                 layer.confirm('真的删除行吗？', function (index) {
-                    request.delete(data['path'],0);
+                    request.delete(data['path'], 0);
                     obj.del();
                     layer.close(index);
                 });
@@ -177,18 +188,18 @@
             }
         });
         //头工具栏事件
-        table.on('toolbar(filetable)', function(obj){
+        table.on('toolbar(filetable)', function (obj) {
             var checkStatus = table.checkStatus(obj.config.id);
-            switch(obj.event){
+            switch (obj.event) {
                 case 'delAll':
                     var data = checkStatus.data;
-                    if(data.lenght<1){
+                    if (data.lenght < 1) {
                         layer.alert('未选中记录', {icon: 5});
                         return false;
                     }
                     layer.confirm('真的删除行吗？', function (index) {
-                        var paths =[];
-                        for (var i=0;i<data.length;i++){
+                        var paths = [];
+                        for (var i = 0; i < data.length; i++) {
                             paths.push(data[i]['path']);
                         }
                         request.delete(paths.join(';'));
@@ -196,15 +207,16 @@
                         layer.close(index);
                     });
                     break;
-            };
+            }
+            ;
         });
 
         //监听行双击事件
-        table.on('rowDouble(filetable)', function(obj){
+        table.on('rowDouble(filetable)', function (obj) {
             var data = obj.data;
-            if(data['is_dir']==0){
+            if (data['is_dir'] == 0) {
                 request.content(data['path']);
-            }else{
+            } else {
                 request.filelist(data['path']);
             }
             //标注选中样式

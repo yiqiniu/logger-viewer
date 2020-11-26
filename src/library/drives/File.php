@@ -19,7 +19,9 @@ class File implements YqnLoggerInterface
      * @var string[]
      */
     private $_option = [
-        'log_dir' => '',
+        'base_dir' => '',
+        'log_dir' => [],
+        'format' => [],
     ];
 
     /**
@@ -40,11 +42,11 @@ class File implements YqnLoggerInterface
     public function initOption(array $option): bool
     {
         $this->_option = array_merge($this->_option, $option);
-        if (empty($this->_option['log_dir'])) {
+        if (empty($this->_option['base_dir'])) {
             return false;
         }
         //只能是当前项目的目录
-        if (stripos($this->_option['log_dir'], $this->app->getRootPath()) === false) {
+        if (stripos($this->_option['base_dir'], $this->app->getRootPath()) === false) {
             return false;
         }
         return true;
@@ -91,8 +93,23 @@ class File implements YqnLoggerInterface
     public function treelist(): array
     {
 
+
         $result = [];
-        $this->treelistAction($this->_option['log_dir'], $result, 0);
+
+        if (!empty($this->_option['base_dir'])) {
+            if (!empty($this->_option['log_dir'])) {
+                foreach ($this->_option['log_dir'] as $dir) {
+                    $node = ['title' => $dir, 'id' => $dir, 'children' => [], 'path' => $dir, 'spread' => true];
+                    $node_children =& $node['children'];
+                    $result[] = $node;
+                    $this->treelistAction($this->_option['base_dir'] . $dir, $node_children, 1, $dir);
+                }
+
+            } else {
+                $this->treelistAction($this->_option['base_dir'], $result, 0);
+            }
+
+        }
         return $result;
     }
 
@@ -104,7 +121,7 @@ class File implements YqnLoggerInterface
     public function filelist(string $fileID = ''): array
     {
 
-        $dest_dir = $this->_option['log_dir'];
+        $dest_dir = $this->_option['base_dir'];
         if ($fileID !== '') {
             $dest_dir .= DIRECTORY_SEPARATOR . str_replace('|', DIRECTORY_SEPARATOR, $fileID);
         }
@@ -115,7 +132,14 @@ class File implements YqnLoggerInterface
                 if ($file === '.' || $file === '..') {
                     continue;
                 }
+
                 $fileinfo = new \SplFileInfo($dest_dir . DIRECTORY_SEPARATOR . $file);
+                //过滤不支持格式
+                if (!$fileinfo->isDir()
+                    && !empty($this->_option['format'])
+                    && !in_array($fileinfo->getExtension(), $this->_option['format'], true)) {
+                    continue;
+                }
                 $result[] = [
                     'filename' => $fileinfo->getFilename(),
                     'filesize' => $fileinfo->getSize(),
@@ -123,6 +147,7 @@ class File implements YqnLoggerInterface
                     'last_time' => date('Y-m-d H:i:s', $fileinfo->getMTime()),
                     'path' => $fileID . '|' . $fileinfo->getFilename()
                 ];
+
             }
         }
         return $result;
@@ -136,7 +161,7 @@ class File implements YqnLoggerInterface
      */
     public function read(string $fileID): string
     {
-        $dest_dir = $this->_option['log_dir'];
+        $dest_dir = $this->_option['base_dir'];
         if ($fileID !== '') {
             $dest_dir .= DIRECTORY_SEPARATOR . str_replace('|', DIRECTORY_SEPARATOR, $fileID);
         }
@@ -153,7 +178,7 @@ class File implements YqnLoggerInterface
      */
     public function delete(string $fileID): bool
     {
-        $dest_dir = $this->_option['log_dir'];
+        $dest_dir = $this->_option['base_dir'];
         //删除文件
         $files = explode(';', $fileID);
         foreach ($files as $file) {
@@ -162,7 +187,14 @@ class File implements YqnLoggerInterface
                 if (is_dir($dest_dir)) {
                     $this->deldir($dest_dir);
                 } else {
-                    unlink($file);
+                    //过滤不支持格式
+                    if (!empty($this->_option['format'])
+                        && !in_array($fileinfo->getExtension(), $this->_option['format'], true)) {
+                        continue;
+                    } else {
+                        unlink($file);
+                    }
+
                 }
             }
         }

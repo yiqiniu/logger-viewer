@@ -71,7 +71,7 @@ class Logger implements YqnLoggerInterface
 
             $name = $this->getConfig('default','file');
 
-            $class = '\\yiqiniu\\logger\\library\\drives\\' . $name;
+            $class = '\\yiqiniu\\logger\\library\\drives\\' . ucfirst($name);
 
             if (!class_exists($class)) {
                 throw  new Exception($class . 'file not found');

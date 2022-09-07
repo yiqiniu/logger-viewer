@@ -189,7 +189,7 @@ class File implements YqnLoggerInterface
             if (!is_readable($dest_dir)) {
                 return $content;
             }
-            $fp = new SplFileObject($dest_dir, 'r');
+            $fp = new \SplFileObject($dest_dir, 'r');
             // 定位到指定的行开始读
             $offset = ($page - 1) * $page_size;
             if ($offset) {
@@ -207,7 +207,7 @@ class File implements YqnLoggerInterface
                 if ($i > $page_size) {
                     break;
                 }
-                $line = $fp->current();
+                $line = '<div>' . $fp->current() . '</div>';
                 $content .= $line;
                 // 指向下一个，不能少
                 $fp->next();

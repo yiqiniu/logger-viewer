@@ -9,7 +9,10 @@
         #content {
             width: 100%;
             height: 800px;
-            margin: 2px;
+            padding: 5px;
+            font-size: 16px;
+            line-height: 25px;
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -37,34 +40,43 @@
                     layer.msg('已到底', {anim: 6, icon: 5});
                     return
                 }
-                var url = "{:url('viewer/read')}" + "?path=" + $path + "?page=" + page || 1;
+                var url = "{:url('viewer/read')}" + "?path=" + $path + "&page=" + page || 1;
+                console.info(url);
                 $.get(url, function (value) {
                     if (value === '') {
                         eof = true;
                     } else {
-                        content_div.append($('<p>' + value + '</p>'));
+                        content_div.append($('<span>' + value + '</span>'));
                         current_page++;
                     }
                 })
             },
         };
-
-
         divScroll = function () {
             var wholeHeight = content_div.scrollHeight;//滚动区域高度
             var divScrollTop = content_div.scrollTop;//卷上去的那部分高度
             var divHeight = content_div.clientHeight; //div的可视区域的高度
-
+            console.info(wholeHeight);
+            console.info(divScrollTop);
+            console.info(divHeight);
             if (divScrollTop + divHeight >= wholeHeight) {
+                alert("我已经到了底部了!");
                 request.content(path, current_page);
             }/* else if (divScrollTop === 0) {
                 alert("我已经到了顶部了!");
             }*/
             //document.title = (divScrollTop + divHeight) + "---" + wholeHeight + "--" + divScrollTop;
         }
+
         content_div.onscroll = divScroll;
         request.content(path, current_page);
-
+        var timer = setInterval(function () {
+            if (!eof) {
+                request.content(path, current_page);
+            } else {
+                clearInterval(timer);
+            }
+        }, 2000)
     });
 
 </script>

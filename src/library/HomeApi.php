@@ -153,9 +153,9 @@ class HomeApi
         }
         $path = input('get.path');
         $page = input('get.page', 1);
-        $page_size = input('get.page', 200);
-        $content = Logger::getInstance($this->app)->page($path, $page, $page_size);
-        return htmlspecialchars($content);
+        $page_size = input('get.page_size', 50);
+        $content = Logger::getInstance($this->app)->page($path, (int)$page, (int)$page_size);
+        return $content;
         //$prefix = '<div style="padding: 5px; font-size: 16px; line-height: 25px;white-space:nowrap;">';
         //$suffix = '</div>';
         //return $prefix . str_replace(["\r\n", "\r", "\n"], '<br/>', htmlspecialchars($content)) . $suffix;
@@ -205,7 +205,7 @@ class HomeApi
             return;
         }
         $path = input('get.path');
-        $template->assign('path', $path);
+        $template->assign(['path' => $path]);
         // 读取模板文件渲染输出
         $template->fetch('view');
     }

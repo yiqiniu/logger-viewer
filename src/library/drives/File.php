@@ -235,7 +235,7 @@ class File implements YqnLoggerInterface
                 } else {
                     //过滤不支持格式
                     if (!empty($this->_option['format'])
-                        && !in_array($fileinfo->getExtension(), $this->_option['format'], true)) {
+                        && !in_array(pathinfo($file, PATHINFO_EXTENSION), (array)$this->_option['format'], true)) {
                         continue;
                     } else {
                         unlink($file);

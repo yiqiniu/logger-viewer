@@ -172,6 +172,52 @@ class File implements YqnLoggerInterface
     }
 
     /**
+     * 按页读取行数
+     * @param string $fileID 文件ID
+     * @param $page
+     * @param int $page_size
+     * @return string
+     */
+    public function page(string $fileID, $page, int $page_size): string
+    {
+        $dest_dir = $this->_option['base_dir'];
+        if ($fileID !== '') {
+            $dest_dir .= DIRECTORY_SEPARATOR . str_replace('|', DIRECTORY_SEPARATOR, $fileID);
+        }
+        if (file_exists($dest_dir)) {
+            $content = '';
+            if (!is_readable($dest_dir)) {
+                return $content;
+            }
+            $fp = new SplFileObject($dest_dir, 'r');
+            // 定位到指定的行开始读
+            $offset = ($page - 1) * $page_size;
+            if ($offset) {
+                $fp->seek($offset);
+            }
+            // 验证文件是否已经结束
+            if (!$fp->valid()) {
+                return $content;
+            }
+            $i = 0;
+            while (!$fp->eof()) {
+                // 必须放在开头
+                $i++;
+                // $count 读取行数
+                if ($i > $page_size) {
+                    break;
+                }
+                $line = $fp->current();
+                $content .= $line;
+                // 指向下一个，不能少
+                $fp->next();
+            }
+            return $content;
+        }
+        return '';
+    }
+
+    /**
      * 删除文件
      * @param string $fileID 多个文件以;分隔
      * @return bool

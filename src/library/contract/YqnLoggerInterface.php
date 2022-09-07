@@ -4,7 +4,6 @@
 namespace yiqiniu\logger\library\contract;
 
 
-
 interface YqnLoggerInterface
 {
 
@@ -44,6 +43,15 @@ interface YqnLoggerInterface
      * @return string
      */
     public function read(string $fileID): string;
+
+    /**
+     * 获取文件内容
+     * @param string $fileID 文件ID
+     * @param int $page 页数
+     * @param int $page_size 页大小
+     * @return string
+     */
+    public function page(string $fileID, $page, int $page_size): string;
 
     /**
      * 删除文件

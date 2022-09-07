@@ -43,8 +43,13 @@ class BootService extends Service
             $route->get('list', function () {
                 return HomeApi::getInstance($this->app)->filelist();
             });
+            // 查看日志
+            $route->get('view', function () {
+                return HomeApi::getInstance($this->app)->view();
+            });
+            // 读取内容
             $route->get('read', function () {
-                return HomeApi::getInstance($this->app)->filecontent();
+                return HomeApi::getInstance($this->app)->read();
             });
             $route->post('del', function () {
                 return HomeApi::getInstance($this->app)->delete();

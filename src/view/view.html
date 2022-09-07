@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport">
+    <title>日志查看器</title>
+    <link href="__RES__/layui/css/layui.css" rel="stylesheet">
+    <style type="text/css">
+        #content {
+            width: 100%;
+            height: 800px;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+<div id="content">
+
+</div>
+<script src="__RES__/layui/layui.js"></script>
+<script>
+
+
+    //JavaScript代码区域
+    layui.use(['util'], function () {
+        var util = layui.util,
+            $ = layui.$,
+            path = '{$path}';
+        //
+        var content_div = $('#content');
+        var current_page = 1;
+        var eof = false;
+        var request = {
+            //文件内容
+            content: function ($path, page) {
+                if (eof) {
+                    layer.msg('已到底', {anim: 6, icon: 5});
+                    return
+                }
+                var url = "{:url('viewer/read')}" + "?path=" + $path + "?page=" + page || 1;
+                $.get(url, function (value) {
+                    if (value === '') {
+                        eof = true;
+                    } else {
+                        content_div.append($('<p>' + value + '</p>'));
+                        current_page++;
+                    }
+                })
+            },
+        };
+
+
+        divScroll = function () {
+            var wholeHeight = content_div.scrollHeight;//滚动区域高度
+            var divScrollTop = content_div.scrollTop;//卷上去的那部分高度
+            var divHeight = content_div.clientHeight; //div的可视区域的高度
+
+            if (divScrollTop + divHeight >= wholeHeight) {
+                request.content(path, current_page);
+            }/* else if (divScrollTop === 0) {
+                alert("我已经到了顶部了!");
+            }*/
+            //document.title = (divScrollTop + divHeight) + "---" + wholeHeight + "--" + divScrollTop;
+        }
+        content_div.onscroll = divScroll;
+        request.content(path, current_page);
+
+    });
+
+</script>
+</body>
+</html>

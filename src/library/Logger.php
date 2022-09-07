@@ -47,13 +47,14 @@ class Logger implements YqnLoggerInterface
             self::$_instance = new static();
         }
         if (method_exists(self::$_instance, '_initilize')) {
-            call_user_func_array([self::$_instance,'_initilize'],$args);
+            call_user_func_array([self::$_instance, '_initilize'], $args);
         }
         return self::$_instance;
     }
 
 
-    public function _initilize(App $app){
+    public function _initilize(App $app)
+    {
         $this->app = $app;
         $this->getDriver();
     }
@@ -69,7 +70,7 @@ class Logger implements YqnLoggerInterface
     {
         if ($this->handler === null) {
 
-            $name = $this->getConfig('default','file');
+            $name = $this->getConfig('default', 'file');
 
             $class = '\\yiqiniu\\logger\\library\\drives\\' . $name;
 
@@ -81,8 +82,8 @@ class Logger implements YqnLoggerInterface
             if ($handler->initOption($this->getConfig($name)) === false) {
                 throw new Exception('初始化驱动失败');
             }
-            $this->handler= $handler;
-            return $handler ;
+            $this->handler = $handler;
+            return $handler;
         }
         return $this->handler;
 
@@ -95,7 +96,7 @@ class Logger implements YqnLoggerInterface
      * @param mixed $default 默认值
      * @return mixed
      */
-    public function getConfig(string $name = null,$default='')
+    public function getConfig(string $name = null, $default = '')
     {
         if (!empty(self::$_config)) {
             $config = self::$_config;
@@ -142,5 +143,10 @@ class Logger implements YqnLoggerInterface
     public function delete(string $fileID): bool
     {
         return $this->handler->delete($fileID);
+    }
+
+    public function page(string $fileID, $page, int $page_size): string
+    {
+        return $this->handler->page($fileID, $page, $page_size);
     }
 }

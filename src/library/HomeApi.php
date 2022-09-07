@@ -146,16 +146,19 @@ class HomeApi
     /**
      * 读取文件内容
      */
-    public function filecontent()
+    public function read()
     {
         if (!$this->checkLogin()) {
             return redirect('/viewer/login');
         }
         $path = input('get.path');
-        $content = Logger::getInstance($this->app)->read($path);
-        $prefix = '<div style="padding: 5px; font-size: 16px; line-height: 25px;white-space:nowrap;">';
-        $suffix = '</div>';
-        return $prefix . str_replace(["\r\n", "\r", "\n"], '<br/>', htmlspecialchars($content)) . $suffix;
+        $page = input('get.page', 1);
+        $page_size = input('get.page', 200);
+        $content = Logger::getInstance($this->app)->page($path, $page, $page_size);
+        return htmlspecialchars($content);
+        //$prefix = '<div style="padding: 5px; font-size: 16px; line-height: 25px;white-space:nowrap;">';
+        //$suffix = '</div>';
+        //return $prefix . str_replace(["\r\n", "\r", "\n"], '<br/>', htmlspecialchars($content)) . $suffix;
     }
 
     /**
@@ -187,6 +190,24 @@ class HomeApi
             "count" => $count,
             "data" => $data
         ]);
+    }
+
+    /**
+     * 日志查看器
+     * @return void
+     */
+    public function view()
+    {
+        // 设置模板引擎参数
+        $template = new Template($this->tpl_config);
+        if (!$this->checkLogin()) {
+            $template->fetch('login');
+            return;
+        }
+        $path = input('get.path');
+        $template->assign('path', $path);
+        // 读取模板文件渲染输出
+        $template->fetch('view');
     }
 
 
